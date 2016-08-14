@@ -1,0 +1,75 @@
+
+file = open('tasks_1-20_v1-2/en/qa1_single-supporting-fact_train.txt')
+
+stories = list();
+last_id = 0;
+
+matcher number "[0-9]*" print('number');
+
+matcher sentence "[a-zA-Z][a-zA-Z ]*" print('sentence');
+matcher word "[a-zA-Z]*" print('word');
+
+nQuestions = 0
+nFacts = 0
+
+'Used to read the input file:'
+matcher split {
+  "(number)num; (sentence)fact;." {
+    if (num == '1') stories.push(list());
+    story = stories[-1]
+
+    'Build the line:'
+    line = map();
+    line.type = 'fact';
+    line.text = fact;
+    nFacts = nFacts + 1
+
+    'Add it to the story:'
+    story.push(line)
+
+    'If matched here, don`t bother'
+    'searching further:'
+    finish;
+  }
+
+  "(number)num; (sentence)q;? |(word)a;|(number)" {
+    story = stories[-1]
+
+    'Build the line:'
+    line = map();
+    line.type = 'question';
+    line.text = q;
+    line.answer = a;
+
+    nQuestions = nQuestions + 1
+
+    'Add it to the story:'
+    story.push(line)
+  }
+}
+
+'Collect data from all stories:'
+lines = list(file.readlines())
+stories = list()
+for (i in range(0, 1000, 15)) {
+  story = list()
+  for(j in range(15)) {
+    line = lines[i+j];
+    story.push(line)
+    if (line[-1] == '.') {
+      nFacts = nFacts + 1
+    } else {
+      nQuestions = nQuestions + 1
+    }
+  }
+}
+
+'for (line in file.readlines()) split.exec(line);'
+
+print('Done!');
+print('Total stories read: %s' % stories.len());
+print('Total questions: %s' % nQuestions);
+print('Total facts: %s' % nFacts);
+
+print(stories[0])
+
