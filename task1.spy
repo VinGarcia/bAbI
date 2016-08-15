@@ -1,13 +1,7 @@
 
-file = open('train1.txt')
-
-stories = list();
-last_id = 0;
-
-matcher number "[0-9]*" print('number');
-
-matcher sentence "[a-zA-Z][a-zA-Z ]*" print('sentence');
-matcher word "[a-zA-Z]*" print('word');
+matcher number "[0-9]*";
+matcher sentence "[a-zA-Z][a-zA-Z ]*";
+matcher word "[a-zA-Z]*";
 
 matcher verb {
   "moved";
@@ -26,9 +20,7 @@ matcher place {
   "kitchen";
 }
 
-matcher name {
-  "[A-Z][a-z]*";
-}
+matcher name "[A-Z][a-z]*";
 
 where = map();
 
@@ -39,19 +31,28 @@ matcher read {
   "(number); (name)n; (verb)v; to the (place)p;." {
     'print(text)'
     where[n] = p;
-    return True
+    finish True
   }
 
   "(number); Where is (name)n;? |(word)p;|(number);" {
-    if(p == where[n]) hit = hit + 1;
-    else miss = miss + 1
+
+    if (p == where[n]) {
+      hit = hit + 1;
+    } else {
+      miss = miss + 1
+    }
+
     'print(text)'
     'print("  %s is on the %s" % (n, where[n]))'
-    return True
+    finish True
   }
 }
 
 nlines = 0
+stories = list();
+
+file = open('train1.txt')
+
 'Collect data from all stories:'
 for (line in file.readlines()) {
   if (line[0] == '1' && line[1] == ' ') {
@@ -61,7 +62,6 @@ for (line in file.readlines()) {
   story.push(line);
   nlines = nlines + 1
 }
-
 
 for (story in stories) {
   for (line in story) {
