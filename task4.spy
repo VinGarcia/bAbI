@@ -1,0 +1,113 @@
+
+matcher number "[0-9]*";
+matcher word "[a-zA-Z]*";
+
+matcher place {
+  "bathroom";
+  "bedroom";
+  "office";
+  "hallway";
+  "garden";
+  "kitchen";
+}
+
+matcher direction {
+  "north"; "south"; "east"; "west";
+}
+
+matcher name "[A-Z][a-z]*";
+
+oppose = map()
+oppose.north = 'south';
+oppose.south = 'north';
+oppose.east = 'west';
+oppose.west = 'east';
+
+'Place class:'
+Place = map();
+for(name in list('north','south','east','west'))
+  Place[name] = None
+
+function add_edge(p1, direction, p2) {
+  places[p1][direction] = p2;
+  places[p2][oppose[direction]] = p1;
+}
+
+'Place list:'
+places = None
+places_list = list(
+  "bathroom", "bedroom", "office",
+  "hallway", "garden", "kitchen", "nowhere")
+function reset() {
+  places = map()
+  for (name in places_list) {
+    places[name] = new(Place)
+  }
+}
+
+hit=0
+miss=0
+
+matcher read {
+  "(number); The (place)p1; is (direction)d; of the (place)p2;." {
+    add_edge(p2, d, p1);
+
+    finish True
+  }
+
+  "(number); What is the (place)p; (direction)d; of?|(word)A;|[0-9 ]*" {
+    answer = places[p][oppose[d]]
+    if(answer == A) {
+      hit = hit + 1
+    } else {
+      miss = miss + 1
+    }
+
+    finish True;
+  }
+
+  "(number); What is (direction)d; of the (place)p;?|(word)A;|[0-9 ]*" {
+    answer = places[p][d]
+    if(answer == A) {
+      hit = hit + 1
+    } else {
+      miss = miss + 1
+    }
+
+    finish True;
+  }
+}
+
+nlines = 0
+stories = list();
+
+file = open('train4.txt')
+
+'Collect data from all stories:'
+for (line in file.readlines()) {
+  if (line[0] == '1' && line[1] == ' ') {
+    story = list()
+    stories.push(story)
+  }
+  story.push(line);
+  nlines = nlines + 1
+}
+
+for (story in stories) {
+  reset();
+  for (line in story) {
+    "print(line)"
+    if (read.exec(line).len() == 0) {
+      print('missed this line: %s' % line)
+    }
+  }
+}
+
+print()
+print('Done!');
+print()
+print('Total stories read: %s' % stories.len());
+print('Total hits: %s' % hit);
+print('Total miss: %s' % miss);
+print()
+
