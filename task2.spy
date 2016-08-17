@@ -1,0 +1,180 @@
+
+matcher number "[0-9]*";
+matcher sentence "[a-zA-Z][a-zA-Z ]*";
+matcher word "[a-zA-Z]*";
+
+matcher move {
+  "moved";
+  "journeyed";
+  "went back";
+  "went";
+  "travelled";
+}
+
+matcher pick {
+  "got" return True;
+  "grabbed" return True;
+  "took" return True;
+  "picked up" return True;
+}
+
+matcher drop {
+  "left" return True;
+  "dropped" return True;
+  "discarded" return True;
+  "put down" return True;
+}
+
+matcher verb "(move, pick, drop)"; 
+
+matcher object {
+  "apple";
+  "football";
+  "milk";
+}
+
+matcher place {
+  "bathroom";
+  "bedroom";
+  "office";
+  "hallway";
+  "garden";
+  "kitchen";
+}
+
+matcher reference {
+  "there";
+}
+
+matcher name "[A-Z][a-z]*";
+
+Person = map();
+function init() { this.where = "nowhere"; this.items = map() }
+Person.__init__ = init;
+
+Place = map();
+function init() { this.items = map() }
+Place.__init__ = init;
+
+people = None
+places = None
+function reset() {
+  people = map()
+  places = map()
+  
+  p_list = list(
+    "bathroom", "bedroom", "office",
+    "hallway", "garden", "kitchen", "nowhere"
+  )
+  
+  for (name in p_list) {
+    places[name] = new(Place)
+  }
+}
+
+hit=0
+miss=0
+
+matcher read {
+  "(number); (name)n; (verb)v; to the (place)p;." {
+    if (people[n] == None) {
+      people[n] = new(Person);
+    }
+
+    last_place = p;
+
+    people[n].where = p;
+
+    finish True
+  }
+
+  "(number); (name)n; (pick)v; the (object)obj;(".", " there.")w;" {
+    if (people[n] == None) {
+      people[n] = new(Person);
+    }
+
+    'Move the object from the place to the person:'
+    people[n].items[obj] = True;
+    places[people[n].where].items[obj] = False;
+
+    finish True
+  }
+
+  "(number); (name)n; (drop)v; the (object)o;(".", " there.")w;" {
+    if (people[n] == None) {
+      people[n] = new(Person);
+    }
+
+    'Move the object from the person to the place:'
+    people[n].items[o] = False;
+    places[people[n].where].items[o] = True;
+
+    finish True
+  }
+
+  "(number); Where is the (object)o;? |(word)p;|(number); (number);" {
+
+    for (name in people) {
+      if (people[name].items[o] == True) {
+        "print('> at the %s' % people[name].where)"
+        if (p == people[name].where) {
+          hit = hit + 1;
+        } else {
+          miss = miss + 1
+        }
+        finish True;
+      }
+    }
+
+    for (n in places) {
+      if (places[n].items[o] == True) {
+        "print('> at the %s' % n)"
+        if (p == n) {
+          hit = hit + 1;
+        } else {
+          miss = miss + 1
+        }
+        finish True;
+      }
+    }
+    print('× %s is no where to be found!' % o);
+    finish True
+  }
+}
+
+'NOTE: story 100, is a problem story.'
+'It can be used as a sample to try to solve all cases.'
+
+nlines = 0
+stories = list();
+
+file = open('train2.txt')
+
+'Collect data from all stories:'
+for (line in file.readlines()) {
+  if (line[0] == '1' && line[1] == ' ') {
+    story = list()
+    stories.push(story)
+  }
+  story.push(line);
+  nlines = nlines + 1
+}
+
+for (story in stories) {
+  reset();
+  for (line in story) {
+    "print(line)"
+    if (read.exec(line).len() == 0) {
+      print('missed this line: %s' % line)
+    }
+  }
+}
+
+print()
+print('Done!');
+print()
+print('Total stories read: %s' % stories.len());
+print('Total hits: %s' % hit);
+print('Total miss: %s' % miss);
+print()
+
