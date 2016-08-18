@@ -11,4 +11,7 @@
 4:
 	./jSpy/jspy task4.spy
 
-all: 1 2 3 4
+11:
+	./jSpy/jspy task11.spy
+
+all: 1 2 3 4 11

@@ -1,0 +1,152 @@
+
+matcher number "[0-9]*";
+matcher sentence "[a-zA-Z][a-zA-Z ]*";
+matcher word "[a-zA-Z]*";
+
+matcher move {
+  "moved";
+  "journeyed";
+  "went back";
+  "went";
+  "travelled";
+}
+
+matcher place {
+  "bathroom";
+  "bedroom";
+  "office";
+  "hallway";
+  "garden";
+  "kitchen";
+}
+
+matcher name "[A-Z][a-z]*";
+
+matcher pronoun { "he"; "she" };
+matcher she { "Mary" return 1; "Sandra" return 1; }
+matcher he { "Daniel" return 1; "John" return 1; }
+pronoun["he"] = he;
+pronoun["she"] = she;
+
+matcher after {
+  "Afterwards";
+  "After that";
+  "Following that";
+  "Then";
+}
+
+Object = map();
+function init() { this.places = list("nowhere"); }
+Object.__init__ = init
+function move_to(where) {
+  if (this.places[-1] != where) {
+    this.places.push(where);
+  }
+}
+Object.move_to = move_to;
+
+Person = map();
+function init() { this.where = "nowhere"; this.items = map() }
+Person.__init__ = init;
+
+Place = map();
+function init() {}
+Place.__init__ = init;
+
+recent = None
+people = None
+places = None
+function reset() {
+  'Recent memory:'
+  recent = list()
+  people = map()
+  places = map()
+  
+  places_list = list(
+    "bathroom", "bedroom", "office",
+    "hallway", "garden", "kitchen", "nowhere")
+  for (name in places_list) {
+    places[name] = new(Place)
+  }
+}
+
+hit=0
+miss=0
+
+matcher read {
+  "(number); (name)n; (move)v; to the (place)p;." {
+    if (people[n] == None) {
+      people[n] = new(Person);
+    }
+
+    'Remember this person:'
+    recent.push(n);
+
+    people[n].where = p;
+
+    finish True
+  }
+
+  "(number); (after); (pronoun)pn; (move); to the (place)p;." {
+
+    'Find the name of the last `he` or `she`:'
+    for(name in reversed(recent)) {
+      'If the pronoun fits the name:'
+      if(pronoun[pn].exec(name).len() > 0)
+        break;
+    }
+
+    'Parse it recursively in a more simple format:'
+    text = '1 %s moved to the %s.' % (name, p)
+    read.exec(text);
+
+    finish True;
+  }
+
+  "(number); Where is (name)n;? |(word)A;|[0-9 ]*" {
+    if(people[n].where == A) {
+      "print('==> At %s' % people[n].where)"
+      hit = hit + 1
+    } else {
+      "print('××> At %s' % people[n].where)"
+      miss = miss + 1
+    }
+
+    finish True;
+  }
+}
+
+nlines = 0
+stories = list();
+
+file = open('train11.txt')
+
+'Collect data from all stories:'
+for (line in file.readlines()) {
+  if (line[0] == '1' && line[1] == ' ') {
+    story = list()
+    stories.push(story)
+  }
+  story.push(line);
+  nlines = nlines + 1
+}
+
+'Parse and answer each story:'
+for (story in stories) {
+  reset();
+  for (line in story) {
+    "print(line)"
+    if (read.exec(line).len() == 0) {
+      print('missed this line: %s' % line)
+    }
+  }
+}
+
+print()
+print('Done!');
+print()
+print('Total stories read: %s' % stories.len());
+print('Total hits: %s' % hit);
+print('Total miss: %s' % miss);
+print()
+
