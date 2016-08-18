@@ -90,7 +90,7 @@ matcher read {
   "(number); (after); (pronoun)pn; (move); to the (place)p;." {
 
     'Find the name of the last `he` or `she`:'
-    for(name in reversed(recent)) {
+    for(name in recent.reverse()) {
       'If the pronoun fits the name:'
       if(pronoun[pn].exec(name).len() > 0)
         break;
