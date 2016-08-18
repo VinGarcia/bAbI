@@ -1,0 +1,90 @@
+
+matcher number "[0-9]*";
+matcher sentence "[a-zA-Z][a-zA-Z ]*";
+matcher word "[a-zA-Z]*";
+matcher name "[A-Z][a-z]*";
+
+matcher to_single {
+  "mice" finish 'mouse';
+  "wolves" finish 'wolf';
+  "cats" finish 'cat';
+  "sheep" finish 'sheep';
+}
+
+species = None
+animals = None
+function reset() {
+  'Recent memory:'
+  species = map()
+  animals = map()
+}
+
+hit=0
+miss=0
+
+matcher read {
+  "(number); (word)n1; are afraid of (word)n2;." {
+    n1 = to_single.exec(n1.lower())[0];
+    if (species[n1] == None) {
+      species[n1] = map()
+    }
+  
+    species[n1].afraid = to_single.exec(n2)[0];
+  
+    finish True;
+  }
+  
+  "(number); (name)n; is a (word)w;." {
+    animals[n.lower()] = new(species[w])
+  
+    finish True;
+  }
+  
+  "(number); What is (word)n; afraid of?|(word)A;|[0-9 ]*" {
+    answer = animals[n.lower()].afraid;
+    if (answer == A) {
+      "print('==>', answer)"
+      hit = hit + 1
+    } else {
+      "print('××>', answer)"
+      miss = miss + 1
+    }
+
+    finish True;
+  }
+}
+
+nlines = 0
+stories = list();
+
+file = open('train15.txt')
+
+'Collect data from all stories:'
+for (line in file.readlines()) {
+  if (line[0] == '1' && line[1] == ' ') {
+    story = list()
+    stories.push(story)
+  }
+  story.push(line);
+  nlines = nlines + 1
+}
+
+'Parse and answer each story:'
+for (story in stories) {
+  reset();
+  for (line in story) {
+    "print(line)"
+    if (read.exec(line).len() == 0) {
+      print('missed this line: %s' % line)
+    }
+  }
+}
+
+print()
+print('Done!');
+print()
+print('Total stories read: %s' % stories.len());
+print('Total hits: %s' % hit);
+print('Total miss: %s' % miss);
+print()
+
