@@ -2,6 +2,7 @@
 matcher number "[0-9]*";
 matcher sentence "[a-zA-Z][a-zA-Z ]*";
 matcher word "[a-zA-Z]*";
+matcher name "[A-Z][a-z]*";
 
 matcher move {
   "moved";
@@ -12,20 +13,18 @@ matcher move {
 }
 
 matcher pick {
-  "got" return True;
-  "grabbed" return True;
-  "took" return True;
-  "picked up" return True;
+  "got";
+  "grabbed";
+  "took";
+  "picked up";
 }
 
 matcher drop {
-  "left" return True;
-  "dropped" return True;
-  "discarded" return True;
-  "put down" return True;
+  "left";
+  "dropped";
+  "discarded";
+  "put down";
 }
-
-matcher verb "(move, pick, drop)"; 
 
 matcher object {
   "apple";
@@ -42,18 +41,12 @@ matcher place {
   "kitchen";
 }
 
-matcher reference {
-  "there";
-}
-
-matcher name "[A-Z][a-z]*";
-
 Person = map();
-function init() { this.where = "nowhere"; this.items = map() }
+function init() { this.where = "nowhere"; this.items = map(); }
 Person.__init__ = init;
 
 Place = map();
-function init() { this.items = map() }
+function init() { this.items = map(); }
 Place.__init__ = init;
 
 people = None
@@ -76,12 +69,10 @@ hit=0
 miss=0
 
 matcher read {
-  "(number); (name)n; (verb)v; to the (place)p;." {
+  "(number); (name)n; (move); to the (place)p;." {
     if (people[n] == None) {
       people[n] = new(Person);
     }
-
-    last_place = p;
 
     people[n].where = p;
 
@@ -112,32 +103,37 @@ matcher read {
     finish True
   }
 
-  "(number); Where is the (object)o;? |(word)p;|(number); (number);" {
+  "(number); Where is the (object)o;? |(word)p;|[0-9 ]*" {
 
+    'Check to see if someone is carrying the object:'
     for (name in people) {
       if (people[name].items[o] == True) {
-        "print('> at the %s' % people[name].where)"
         if (p == people[name].where) {
+          "print('==> at the %s' % people[name].where)"
           hit = hit + 1;
         } else {
+          "print('××> at the %s' % people[name].where)"
           miss = miss + 1
         }
         finish True;
       }
     }
 
+    'Check to see if the object was dropped somewhere:'
     for (n in places) {
       if (places[n].items[o] == True) {
-        "print('> at the %s' % n)"
         if (p == n) {
+          "print('==> at the %s' % n)"
           hit = hit + 1;
         } else {
+          "print('××> at the %s' % n)"
           miss = miss + 1
         }
         finish True;
       }
     }
-    print('× %s is no where to be found!' % o);
+
+    print('--> %s was not found!' % o);
     finish True
   }
 }
