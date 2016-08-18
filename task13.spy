@@ -1,0 +1,112 @@
+
+matcher number "[0-9]*";
+matcher sentence "[a-zA-Z][a-zA-Z ]*";
+matcher word "[a-zA-Z]*";
+
+matcher move {
+  "moved";
+  "journeyed";
+  "went back";
+  "went";
+  "travelled";
+}
+
+matcher place {
+  "bathroom";
+  "bedroom";
+  "office";
+  "hallway";
+  "garden";
+  "kitchen";
+}
+
+matcher after {
+  "Afterwards";
+  "After that";
+  "Following that";
+  "Then";
+}
+
+matcher name "[A-Z][a-z]*";
+
+where = map();
+memory = list();
+
+hit=0
+miss=0
+
+matcher read {
+  "(number); (name)n; (move); to the (place)p;." {
+    'print(text)'
+    where[n] = p;
+    finish True
+  }
+
+  "(number); (name)n1; and (name)n2; (move); to the (place)p;." {
+
+    'Run it recursively:'
+    read.exec('1 %s went to the %s.' % (n1, p));
+    read.exec('1 %s went to the %s.' % (n2, p));
+
+    memory.push(list(n1,n2));
+
+    finish True;
+  }
+
+  "(number); (after); they (move); to the (place)p;." {
+    n1 = memory[-1][0]
+    n2 = memory[-1][1]
+
+    read.exec('1 %s and %s went to the %s.' % (n1, n2, p));
+
+    finish True;
+  }
+
+  "(number); Where is (name)n;? |(word)p;|[0-9 ]*" {
+
+    if (p == where[n]) {
+      "print('==>', where[n])"
+      hit = hit + 1;
+    } else {
+      "print('××>', where[n])"
+      miss = miss + 1
+    }
+
+    'print(text)'
+    'print("  %s is on the %s" % (n, where[n]))'
+    finish True
+  }
+}
+
+nlines = 0
+stories = list();
+
+file = open('train13.txt')
+
+'Collect data from all stories:'
+for (line in file.readlines()) {
+  if (line[0] == '1' && line[1] == ' ') {
+    story = list()
+    stories.push(story)
+  }
+  story.push(line);
+  nlines = nlines + 1
+}
+
+for (story in stories) {
+  for (line in story) {
+    "print(line)"
+    if (read.exec(line).len() == 0) {
+      print('missed one!')
+    }
+  }
+}
+
+print()
+print('Done!');
+print()
+print('Total stories read: %s' % stories.len());
+print('Total hits: %s' % hit);
+print('Total miss: %s' % miss);
+print()
+
