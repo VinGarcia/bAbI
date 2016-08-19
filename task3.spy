@@ -2,6 +2,7 @@
 matcher number "[0-9]*";
 matcher sentence "[a-zA-Z][a-zA-Z ]*";
 matcher word "[a-zA-Z]*";
+matcher name "[A-Z][a-z]*";
 
 matcher move {
   "moved";
@@ -12,20 +13,18 @@ matcher move {
 }
 
 matcher pick {
-  "got" return True;
-  "grabbed" return True;
-  "took" return True;
-  "picked up" return True;
+  "got";
+  "grabbed";
+  "took";
+  "picked up";
 }
 
 matcher drop {
-  "left" return True;
-  "dropped" return True;
-  "discarded" return True;
-  "put down" return True;
+  "left";
+  "dropped";
+  "discarded";
+  "put down";
 }
-
-matcher verb "(move, pick, drop)"; 
 
 matcher object {
   "apple";
@@ -42,12 +41,6 @@ matcher place {
   "kitchen";
 }
 
-matcher reference {
-  "there";
-}
-
-matcher name "[A-Z][a-z]*";
-
 Object = map();
 function init() { this.places = list("nowhere"); }
 Object.__init__ = init
@@ -62,25 +55,12 @@ Person = map();
 function init() { this.where = "nowhere"; this.items = map() }
 Person.__init__ = init;
 
-Place = map();
-function init() { this.items = map() }
-Place.__init__ = init;
-
 people = None
-places = None
 objects = None
 function reset() {
   people = map()
-  places = map()
   objects = map()
   
-  places_list = list(
-    "bathroom", "bedroom", "office",
-    "hallway", "garden", "kitchen", "nowhere")
-  for (name in places_list) {
-    places[name] = new(Place)
-  }
-
   objects_list = list("apple", "football", "milk")
   for (name in objects_list) {
     objects[name] = new(Object)
@@ -89,9 +69,16 @@ function reset() {
 
 hit=0
 miss=0
+function compare_results(guess, answer) {
+  if (guess == answer) {
+    hit = hit + 1;
+  } else {
+    miss = miss + 1
+  }
+}
 
 matcher read {
-  "(number); (name)n; (verb)v; to the (place)p;." {
+  "(number); (name)n; (move)v; to the (place)p;." {
     if (people[n] == None) {
       people[n] = new(Person);
     }
@@ -103,7 +90,6 @@ matcher read {
         objects[item_name].move_to(p);
       }
     }
-
     finish True
   }
 
@@ -114,9 +100,7 @@ matcher read {
 
     'Move the object from the place to the person:'
     people[n].items[obj] = True;
-    places[people[n].where].items[obj] = False;
     objects[obj].move_to(people[n].where)
-
     finish True
   }
 
@@ -127,33 +111,25 @@ matcher read {
 
     'Move the object from the person to the place:'
     people[n].items[obj] = False;
-    places[people[n].where].items[obj] = True;
     objects[obj].move_to(people[n].where)
-
     finish True
   }
 
   "(number); Where was the (object)o; before the (place)p;? |(word)A;|[0-9 ]*" {
-    _places = objects[o].places
+    places = objects[o].places
 
     'Walk from back to front:'
-    for (idx in range(_places.len()-1, -1, -1)) {
-
-      if (_places[idx] == p) {
-        if (idx > 0 && _places[idx-1] == A) {
-          hit = hit + 1
-        } else {
-          miss = miss + 1
-        }
+    for (idx in range(places.len()-1, -1, -1)) {
+      if (places[idx] == p) {
+        guess = places[idx-1]
+        compare_results(guess, A);
         break;
       }
     }
-
     finish True;
   }
 }
 
-nlines = 0
 stories = list();
 
 file = open('train3.txt')
@@ -165,7 +141,6 @@ for (line in file.readlines()) {
     stories.push(story)
   }
   story.push(line);
-  nlines = nlines + 1
 }
 
 for (story in stories) {
