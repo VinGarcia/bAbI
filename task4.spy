@@ -1,6 +1,7 @@
 
 matcher number "[0-9]*";
 matcher word "[a-zA-Z]*";
+matcher name "[A-Z][a-z]*";
 
 matcher place {
   "bathroom";
@@ -14,8 +15,6 @@ matcher place {
 matcher direction {
   "north"; "south"; "east"; "west";
 }
-
-matcher name "[A-Z][a-z]*";
 
 oppose = map()
 oppose.north = 'south';
@@ -47,38 +46,33 @@ function reset() {
 
 hit=0
 miss=0
+function compare_results(guess, answer) {
+  if (guess == answer) {
+    hit = hit + 1;
+  } else {
+    miss = miss + 1
+  }
+}
 
 matcher read {
   "(number); The (place)p1; is (direction)d; of the (place)p2;." {
     add_edge(p2, d, p1);
-
     finish True
   }
 
-  "(number); What is the (place)p; (direction)d; of?|(word)A;|[0-9 ]*" {
-    answer = places[p][oppose[d]]
-    if(answer == A) {
-      hit = hit + 1
-    } else {
-      miss = miss + 1
-    }
-
+  "(number); What is the (place)p; (direction)d; of?|(word)answer;|[0-9 ]*" {
+    guess = places[p][oppose[d]]
+    compare_results(guess, answer);
     finish True;
   }
 
-  "(number); What is (direction)d; of the (place)p;?|(word)A;|[0-9 ]*" {
-    answer = places[p][d]
-    if(answer == A) {
-      hit = hit + 1
-    } else {
-      miss = miss + 1
-    }
-
+  "(number); What is (direction)d; of the (place)p;?|(word)answer;|[0-9 ]*" {
+    guess = places[p][d]
+    compare_results(guess, answer);
     finish True;
   }
 }
 
-nlines = 0
 stories = list();
 
 file = open('train4.txt')
@@ -90,7 +84,6 @@ for (line in file.readlines()) {
     stories.push(story)
   }
   story.push(line);
-  nlines = nlines + 1
 }
 
 for (story in stories) {
