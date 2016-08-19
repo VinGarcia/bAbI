@@ -1,7 +1,7 @@
 
 matcher number "[0-9]*";
-matcher sentence "[a-zA-Z][a-zA-Z ]*";
 matcher word "[a-zA-Z]*";
+matcher name "[A-Z][a-z]*";
 
 matcher verb {
   "moved";
@@ -20,35 +20,31 @@ matcher place {
   "kitchen";
 }
 
-matcher name "[A-Z][a-z]*";
-
-where = map();
+where_is = map();
 
 hit=0
 miss=0
+function compare_results(guess, answer) {
+  if (guess == answer) {
+    hit = hit + 1;
+  } else {
+    miss = miss + 1
+  }
+}
 
 matcher read {
-  "(number); (name)n; (verb)v; to the (place)p;." {
-    'print(text)'
-    where[n] = p;
+  "(number); (name)name; (verb); to the (place)place;." {
+    where_is[name] = place;
     finish True
   }
 
-  "(number); Where is (name)n;? |(word)p;|(number);" {
-
-    if (p == where[n]) {
-      hit = hit + 1;
-    } else {
-      miss = miss + 1
-    }
-
-    'print(text)'
-    'print("  %s is on the %s" % (n, where[n]))'
+  "(number); Where is (name)name;? |(word)answer;|(number);" {
+    guess = where_is[name]
+    compare_results(guess, answer);
     finish True
   }
 }
 
-nlines = 0
 stories = list();
 
 file = open('train1.txt')
@@ -60,7 +56,6 @@ for (line in file.readlines()) {
     stories.push(story)
   }
   story.push(line);
-  nlines = nlines + 1
 }
 
 for (story in stories) {
