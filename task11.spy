@@ -34,16 +34,13 @@ matcher after {
   "Then";
 }
 
-Person = map();
-function init() { this.where = "nowhere"; }
-Person.__init__ = init;
+'Recent memory:'
+memory = list()
+where_is = map();
 
-memory = None
-people = None
 function reset() {
-  'Recent memory:'
   memory = list()
-  people = map()
+  where_is = map()
 }
 
 hit=0
@@ -58,13 +55,9 @@ function compare_results(guess, answer) {
 
 matcher read {
   "(number); (name)n; (move)v; to the (place)p;." {
-    if (people[n] == None) {
-      people[n] = new(Person);
-    }
-
     'Remember this person:'
     memory.push(n);
-    people[n].where = p;
+    where_is[n] = p;
     finish True
   }
 
@@ -78,13 +71,12 @@ matcher read {
     }
 
     'Parse it recursively in a more simple format:'
-    text = '1 %s moved to the %s.' % (name, p)
-    read.exec(text);
+    read.exec('1 %s moved to the %s.' % (name, p));
     finish True;
   }
 
   "(number); Where is (name)n;? |(word)answer;|[0-9 ]*" {
-    guess = people[n].where;
+    guess = where_is[n];
     compare_results(guess, answer);
     finish True;
   }
