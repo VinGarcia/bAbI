@@ -67,6 +67,15 @@ function reset() {
 
 hit=0
 miss=0
+function compare_results(guess, answer) {
+  if (guess == answer) {
+    hit = hit + 1;
+    return True
+  } else {
+    miss = miss + 1
+    return False
+  }
+}
 
 matcher read {
   "(number); (name)n; (move); to the (place)p;." {
@@ -75,7 +84,6 @@ matcher read {
     }
 
     people[n].where = p;
-
     finish True
   }
 
@@ -87,7 +95,6 @@ matcher read {
     'Move the object from the place to the person:'
     people[n].items[obj] = True;
     places[people[n].where].items[obj] = False;
-
     finish True
   }
 
@@ -99,36 +106,23 @@ matcher read {
     'Move the object from the person to the place:'
     people[n].items[o] = False;
     places[people[n].where].items[o] = True;
-
     finish True
   }
 
-  "(number); Where is the (object)o;? |(word)p;|[0-9 ]*" {
-
+  "(number); Where is the (object)o;? |(word)answer;|[0-9 ]*" {
     'Check to see if someone is carrying the object:'
     for (name in people) {
       if (people[name].items[o] == True) {
-        if (p == people[name].where) {
-          "print('==> at the %s' % people[name].where)"
-          hit = hit + 1;
-        } else {
-          "print('××> at the %s' % people[name].where)"
-          miss = miss + 1
-        }
+        guess = people[name].where
+        compare_results(guess, answer)
         finish True;
       }
     }
 
     'Check to see if the object was dropped somewhere:'
-    for (n in places) {
-      if (places[n].items[o] == True) {
-        if (p == n) {
-          "print('==> at the %s' % n)"
-          hit = hit + 1;
-        } else {
-          "print('××> at the %s' % n)"
-          miss = miss + 1
-        }
+    for (name in places) {
+      if (places[name].items[o] == True) {
+        compare_results(name, answer)
         finish True;
       }
     }
