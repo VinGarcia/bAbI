@@ -1,7 +1,7 @@
 
 matcher number "[0-9]*";
-matcher sentence "[a-zA-Z][a-zA-Z ]*";
 matcher word "[a-zA-Z]*";
+matcher name "[A-Z][a-z]*";
 
 matcher move {
   "moved";
@@ -27,29 +27,31 @@ matcher after {
   "Then";
 }
 
-matcher name "[A-Z][a-z]*";
-
-where = map();
+where_is = map();
 memory = list();
 
 hit=0
 miss=0
+function compare_results(guess, answer) {
+  if (guess == answer) {
+    hit = hit + 1;
+  } else {
+    miss = miss + 1
+  }
+}
 
 matcher read {
   "(number); (name)n; (move); to the (place)p;." {
-    'print(text)'
-    where[n] = p;
+    where_is[n] = p;
     finish True
   }
 
   "(number); (name)n1; and (name)n2; (move); to the (place)p;." {
-
     'Run it recursively:'
     read.exec('1 %s went to the %s.' % (n1, p));
     read.exec('1 %s went to the %s.' % (n2, p));
 
     memory.push(list(n1,n2));
-
     finish True;
   }
 
@@ -58,22 +60,11 @@ matcher read {
     n2 = memory[-1][1]
 
     read.exec('1 %s and %s went to the %s.' % (n1, n2, p));
-
     finish True;
   }
 
-  "(number); Where is (name)n;? |(word)p;|[0-9 ]*" {
-
-    if (p == where[n]) {
-      "print('==>', where[n])"
-      hit = hit + 1;
-    } else {
-      "print('××>', where[n])"
-      miss = miss + 1
-    }
-
-    'print(text)'
-    'print("  %s is on the %s" % (n, where[n]))'
+  "(number); Where is (name)n;? |(word)answer;|[0-9 ]*" {
+    compare_results(where_is[n], answer)
     finish True
   }
 }
