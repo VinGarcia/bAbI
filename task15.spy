@@ -1,6 +1,5 @@
 
 matcher number "[0-9]*";
-matcher sentence "[a-zA-Z][a-zA-Z ]*";
 matcher word "[a-zA-Z]*";
 matcher name "[A-Z][a-z]*";
 
@@ -21,6 +20,13 @@ function reset() {
 
 hit=0
 miss=0
+function compare_results(guess, answer) {
+  if (guess == answer) {
+    hit = hit + 1
+  } else {
+    miss = miss + 1
+  }
+}
 
 matcher read {
   "(number); (word)n1; are afraid of (word)n2;." {
@@ -30,26 +36,17 @@ matcher read {
     }
   
     species[n1].afraid = to_single.exec(n2)[0];
-  
     finish True;
   }
   
   "(number); (name)n; is a (word)w;." {
     animals[n.lower()] = new(species[w])
-  
     finish True;
   }
   
-  "(number); What is (word)n; afraid of?|(word)A;|[0-9 ]*" {
-    answer = animals[n.lower()].afraid;
-    if (answer == A) {
-      "print('==>', answer)"
-      hit = hit + 1
-    } else {
-      "print('××>', answer)"
-      miss = miss + 1
-    }
-
+  "(number); What is (word)n; afraid of?|(word)answer;|[0-9 ]*" {
+    guess = animals[n.lower()].afraid;
+    compare_results(guess, answer);
     finish True;
   }
 }
