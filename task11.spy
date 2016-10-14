@@ -1,6 +1,5 @@
 
 matcher number "[0-9]*";
-matcher sentence "[a-zA-Z][a-zA-Z ]*";
 matcher word "[a-zA-Z]*";
 matcher name "[A-Z][a-z]*";
 
@@ -54,7 +53,7 @@ function compare_results(guess, answer) {
 }
 
 matcher read {
-  "(number); (name)n; (move)v; to the (place)p;." {
+  "(number); (name)n; (move); to the (place)p;." {
     'Remember this person:'
     memory.push(n);
     where_is[n] = p;
