@@ -33,7 +33,7 @@ matcher after {
   "Then";
 }
 
-'Recent memory:'
+// Recent memory:
 memory = list()
 where_is = map();
 
@@ -54,7 +54,7 @@ function compare_results(guess, answer) {
 
 matcher read {
   "(number); (name)n; (move); to the (place)p;." {
-    'Remember this person:'
+    // Remember this person:
     memory.push(n);
     where_is[n] = p;
     finish True
@@ -62,14 +62,14 @@ matcher read {
 
   "(number); (after); (pronoun)pn; (move); to the (place)p;." {
 
-    'Find the name of the last `he` or `she`:'
+    // Find the name of the last `he` or `she`:
     for(name in memory.reverse()) {
-      'If the pronoun fits the name:'
+      // If the pronoun fits the name:
       if(pronoun[pn].exec(name).len() > 0)
         break;
     }
 
-    'Parse it recursively in a more simple format:'
+    // Parse it recursively in a more simple format:
     read.exec('1 %s moved to the %s.' % (name, p));
     finish True;
   }
@@ -85,7 +85,7 @@ stories = list();
 
 file = open('train11.txt')
 
-'Collect data from all stories:'
+// Collect data from all stories:
 for (line in file.readlines()) {
   if (line[0] == '1' && line[1] == ' ') {
     story = list()
@@ -94,11 +94,11 @@ for (line in file.readlines()) {
   story.push(line);
 }
 
-'Parse and answer each story:'
+// Parse and answer each story:
 for (story in stories) {
   reset();
   for (line in story) {
-    "print(line)"
+    // print(line)
     if (read.exec(line).len() == 0) {
       print('missed this line: %s' % line)
     }

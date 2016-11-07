@@ -92,7 +92,7 @@ matcher read {
       people[n] = new(Person);
     }
 
-    'Move the object from the place to the person:'
+    // Move the object from the place to the person:
     people[n].items[obj] = True;
     places[people[n].where].items[obj] = False;
     finish True
@@ -103,14 +103,14 @@ matcher read {
       people[n] = new(Person);
     }
 
-    'Move the object from the person to the place:'
+    // Move the object from the person to the place:
     people[n].items[o] = False;
     places[people[n].where].items[o] = True;
     finish True
   }
 
   "(number); Where is the (object)o;? |(word)answer;|[0-9 ]*" {
-    'Check to see if someone is carrying the object:'
+    // Check to see if someone is carrying the object:
     for (name in people) {
       if (people[name].items[o] == True) {
         guess = people[name].where
@@ -119,7 +119,7 @@ matcher read {
       }
     }
 
-    'Check to see if the object was dropped somewhere:'
+    // Check to see if the object was dropped somewhere:
     for (name in places) {
       if (places[name].items[o] == True) {
         compare_results(name, answer)
@@ -132,15 +132,15 @@ matcher read {
   }
 }
 
-'NOTE: story 100, is a problem story.'
-'It can be used as a sample to try to solve all cases.'
+// NOTE: story 100, is a problem story.
+// It can be used as a sample to try to solve all cases.
 
 nlines = 0
 stories = list();
 
 file = open('train2.txt')
 
-'Collect data from all stories:'
+// Collect data from all stories:
 for (line in file.readlines()) {
   if (line[0] == '1' && line[1] == ' ') {
     story = list()
@@ -153,7 +153,7 @@ for (line in file.readlines()) {
 for (story in stories) {
   reset();
   for (line in story) {
-    "print(line)"
+    // print(line)
     if (read.exec(line).len() == 0) {
       print('missed this line: %s' % line)
     }

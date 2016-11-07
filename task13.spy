@@ -47,7 +47,7 @@ matcher read {
   }
 
   "(number); (name)n1; and (name)n2; (move); to the (place)p;." {
-    'Run it recursively:'
+    // Run it recursively:
     read.exec('1 %s went to the %s.' % (n1, p));
     read.exec('1 %s went to the %s.' % (n2, p));
 
@@ -74,7 +74,7 @@ stories = list();
 
 file = open('train13.txt')
 
-'Collect data from all stories:'
+// Collect data from all stories:
 for (line in file.readlines()) {
   if (line[0] == '1' && line[1] == ' ') {
     story = list()
@@ -86,7 +86,7 @@ for (line in file.readlines()) {
 
 for (story in stories) {
   for (line in story) {
-    "print(line)"
+    // print(line)
     if (read.exec(line).len() == 0) {
       print('missed one!')
     }

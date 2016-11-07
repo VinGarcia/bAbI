@@ -49,7 +49,7 @@ stories = list();
 
 file = open('train1.txt')
 
-'Collect data from all stories:'
+// Collect data from all stories:
 for (line in file.readlines()) {
   if (line[0] == '1' && line[1] == ' ') {
     story = list()

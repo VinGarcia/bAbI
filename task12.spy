@@ -34,13 +34,13 @@ function compare_results(guess, answer) {
 
 matcher read {
   "(number); (name)n; (move); to the (place)p;." {
-    'print(text)'
+    // print(text)
     where_is[n] = p;
     finish True
   }
 
   "(number); (name)n1; and (name)n2; (move); to the (place)p;." {
-    'Run it recursively:'
+    // Run it recursively:
     read.exec('1 %s went to the %s.' % (n1, p));
     read.exec('1 %s went to the %s.' % (n2, p));
     finish True;
@@ -57,7 +57,7 @@ stories = list();
 
 file = open('train12.txt')
 
-'Collect data from all stories:'
+// Collect data from all stories:
 for (line in file.readlines()) {
   if (line[0] == '1' && line[1] == ' ') {
     story = list()

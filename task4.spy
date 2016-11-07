@@ -22,7 +22,7 @@ oppose.south = 'north';
 oppose.east = 'west';
 oppose.west = 'east';
 
-'Place class:'
+// Place class:
 Place = map();
 for(name in list('north','south','east','west'))
   Place[name] = None
@@ -32,7 +32,7 @@ function add_edge(p1, direction, p2) {
   places[p2][oppose[direction]] = p1;
 }
 
-'Place list:'
+// Place list:
 places = None
 places_list = list(
   "bathroom", "bedroom", "office",
@@ -77,7 +77,7 @@ stories = list();
 
 file = open('train4.txt')
 
-'Collect data from all stories:'
+// Collect data from all stories:
 for (line in file.readlines()) {
   if (line[0] == '1' && line[1] == ' ') {
     story = list()
@@ -89,7 +89,7 @@ for (line in file.readlines()) {
 for (story in stories) {
   reset();
   for (line in story) {
-    "print(line)"
+    // print(line)
     if (read.exec(line).len() == 0) {
       print('missed this line: %s' % line)
     }
