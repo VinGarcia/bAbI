@@ -1,4 +1,5 @@
 
+// Knowledge Base (33 lines):
 matcher number "[0-9]*";
 matcher word "[a-zA-Z]*";
 matcher name "[A-Z][a-z]*";
@@ -33,6 +34,7 @@ matcher after {
   "Then";
 }
 
+// Model (8 lines):
 // Recent memory:
 memory = list()
 where_is = map();
@@ -42,6 +44,7 @@ function reset() {
   where_is = map()
 }
 
+// Result Validation (9 lines):
 hit=0
 miss=0
 function compare_results(guess, answer) {
@@ -52,6 +55,7 @@ function compare_results(guess, answer) {
   }
 }
 
+// Parsing Complexity 28 lines:
 matcher read {
   "(number); (name)n; (move); to the (place)p;." {
     // Remember this person:
@@ -81,6 +85,7 @@ matcher read {
   }
 }
 
+// Reading stories and executing the matcher network (31 lines):
 stories = list();
 
 file = open('train11.txt')

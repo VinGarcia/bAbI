@@ -1,0 +1,41 @@
+Task1: ©
+Knowledge base: 20
+Model definition: 1
+Parsing complexity: 12
+
+Task2: ©
+Knowledge base: 41
+Model definition: 23
+Parsing complexity: 54
+
+Task3: ©
+Knowledge base: 41
+Model definition: 25
+Parsing complexity: 52
+
+Task4: ©
+Knowledge base: 16
+Model definition: 27
+Parsing complexity: 18
+
+Task11: ©
+Knowledge base: 33
+Model definition: 8
+Parsing complexity: 28
+
+Task12: ©
+Knowledge base: 20
+Model definition: 1
+Parsing complexity: 19
+
+Task13: ©
+Knowledge base: 27
+Model definition: 2
+Parsing complexity: 28
+
+Task15: ©
+Knowledge base: 10
+Model definition: 7
+Parsing complexity: 22
+
+// Reading stories and executing the matcher network (31 lines):

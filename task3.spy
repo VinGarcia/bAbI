@@ -1,4 +1,5 @@
 
+// Knowledge Base (41 lines):
 matcher number "[0-9]*";
 matcher sentence "[a-zA-Z][a-zA-Z ]*";
 matcher word "[a-zA-Z]*";
@@ -41,6 +42,7 @@ matcher place {
   "kitchen";
 }
 
+// Model (25 lines):
 Object = map();
 function init() { this.places = list("nowhere"); }
 Object.__init__ = init
@@ -63,10 +65,11 @@ function reset() {
   
   objects_list = list("apple", "football", "milk")
   for (name in objects_list) {
-    objects[name] = new(Object)
+    objects[name] = new Object()
   }
 }
 
+// Result Validation (9 lines):
 hit=0
 miss=0
 function compare_results(guess, answer) {
@@ -77,10 +80,11 @@ function compare_results(guess, answer) {
   }
 }
 
+// Parsing Complexity (52 lines):
 matcher read {
   "(number); (name)n; (move)v; to the (place)p;." {
     if (people[n] == None) {
-      people[n] = new(Person);
+      people[n] = new Person();
     }
 
     people[n].where = p;
@@ -95,7 +99,7 @@ matcher read {
 
   "(number); (name)n; (pick)v; the (object)obj;(".", " there.")w;" {
     if (people[n] == None) {
-      people[n] = new(Person);
+      people[n] = new Person();
     }
 
     // Move the object from the place to the person:
@@ -106,7 +110,7 @@ matcher read {
 
   "(number); (name)n; (drop)v; the (object)obj;(".", " there.")w;" {
     if (people[n] == None) {
-      people[n] = new(Person);
+      people[n] = new Person();
     }
 
     // Move the object from the person to the place:
@@ -130,6 +134,7 @@ matcher read {
   }
 }
 
+// Reading stories and executing the matcher network (30 lines):
 stories = list();
 
 file = open('train3.txt')

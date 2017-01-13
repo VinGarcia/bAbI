@@ -1,4 +1,5 @@
 
+// Knowledge Base (20 lines):
 matcher number "[0-9]*";
 matcher word "[a-zA-Z]*";
 matcher name "[A-Z][a-z]*";
@@ -20,8 +21,10 @@ matcher place {
   "kitchen";
 }
 
+// Model (1 line):
 where_is = map();
 
+// Result Validation (9 lines):
 hit=0
 miss=0
 function compare_results(guess, answer) {
@@ -32,6 +35,7 @@ function compare_results(guess, answer) {
   }
 }
 
+// Parsing Complexity (12 lines):
 matcher read {
   "(number); (name)name; (verb); to the (place)place;." {
     where_is[name] = place;
@@ -45,6 +49,7 @@ matcher read {
   }
 }
 
+// Reading stories and executing the matcher network (28 lines):
 stories = list();
 
 file = open('train1.txt')

@@ -1,4 +1,5 @@
 
+// Knowledge Base (41 lines):
 matcher number "[0-9]*";
 matcher sentence "[a-zA-Z][a-zA-Z ]*";
 matcher word "[a-zA-Z]*";
@@ -41,6 +42,7 @@ matcher place {
   "kitchen";
 }
 
+// Model (23 lines):
 Person = map();
 function init() { this.where = "nowhere"; this.items = map(); }
 Person.__init__ = init;
@@ -61,10 +63,11 @@ function reset() {
   )
   
   for (name in p_list) {
-    places[name] = new(Place)
+    places[name] = new Place()
   }
 }
 
+// Result Validation (11 lines):
 hit=0
 miss=0
 function compare_results(guess, answer) {
@@ -77,10 +80,11 @@ function compare_results(guess, answer) {
   }
 }
 
+// Parsing Complexity (54 lines):
 matcher read {
   "(number); (name)n; (move); to the (place)p;." {
     if (people[n] == None) {
-      people[n] = new(Person);
+      people[n] = new Person();
     }
 
     people[n].where = p;
@@ -89,7 +93,7 @@ matcher read {
 
   "(number); (name)n; (pick)v; the (object)obj;(".", " there.")w;" {
     if (people[n] == None) {
-      people[n] = new(Person);
+      people[n] = new Person();
     }
 
     // Move the object from the place to the person:
@@ -100,7 +104,7 @@ matcher read {
 
   "(number); (name)n; (drop)v; the (object)o;(".", " there.")w;" {
     if (people[n] == None) {
-      people[n] = new(Person);
+      people[n] = new Person();
     }
 
     // Move the object from the person to the place:
@@ -135,6 +139,7 @@ matcher read {
 // NOTE: story 100, is a problem story.
 // It can be used as a sample to try to solve all cases.
 
+// Reading stories and executing the matcher network (32 lines):
 nlines = 0
 stories = list();
 

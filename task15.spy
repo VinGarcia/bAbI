@@ -1,4 +1,5 @@
 
+// Knowledge Base (10 lines):
 matcher number "[0-9]*";
 matcher word "[a-zA-Z]*";
 matcher name "[A-Z][a-z]*";
@@ -10,6 +11,7 @@ matcher to_single {
   "sheep" finish 'sheep';
 }
 
+// Model (7 lines):
 species = None
 animals = None
 function reset() {
@@ -18,6 +20,7 @@ function reset() {
   animals = map()
 }
 
+// Result Validation (9 lines):
 hit=0
 miss=0
 function compare_results(guess, answer) {
@@ -28,6 +31,7 @@ function compare_results(guess, answer) {
   }
 }
 
+// Parsing Complexity (22 lines):
 matcher read {
   "(number); (word)n1; are afraid of (word)n2;." {
     n1 = to_single.exec(n1.lower())[0];
@@ -40,7 +44,7 @@ matcher read {
   }
   
   "(number); (name)n; is a (word)w;." {
-    animals[n.lower()] = new(species[w])
+    animals[n.lower()] = new species[w]()
     finish True;
   }
   
@@ -51,6 +55,7 @@ matcher read {
   }
 }
 
+// Reading stories and executing the matcher network (31 lines):
 nlines = 0
 stories = list();
 
