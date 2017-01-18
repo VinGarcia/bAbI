@@ -1,4 +1,3 @@
-
 // Knowledge Base (20 lines):
 matcher number "[0-9]*";
 matcher word "[a-zA-Z]*";
@@ -21,8 +20,9 @@ matcher place {
   "kitchen";
 }
 
-// Model (1 line):
+// Model (2 line):
 var where_is = map();
+choices = ["no", "yes"]
 
 // Result Validation (9 lines):
 var hit = 0
@@ -35,14 +35,15 @@ function compare_results(guess, answer) {
   }
 }
 
-// Parsing Complexity (10 lines):
+// Parsing Complexity (13 lines):
 matcher read {
   "(number); (name)name; (verb); to the (place)place;." {
     where_is[name] = place;
   }
 
-  "(number); Where is (name)name;? |(word)answer;|(number);" {
-    guess = where_is[name]
+  "(number); Is (name)name; in the (place)p;? |(word)answer;|(number);" {
+    guess = choices[ where_is[name]==p ]
+
     compare_results(guess, answer);
   }
 }
@@ -50,7 +51,7 @@ matcher read {
 // Reading stories and executing the matcher network (28 lines):
 stories = list();
 
-file = open('train1.txt')
+file = open('train6.txt')
 
 // Collect data from all stories:
 for (line in file.readlines()) {
@@ -63,9 +64,7 @@ for (line in file.readlines()) {
 
 for (story in stories) {
   for (line in story) {
-    if (read.match(line) == False) {
-      print('missed this line: %s!' % line)
-    }
+    read.match(line);
   }
 }
 

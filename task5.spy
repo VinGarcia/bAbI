@@ -1,0 +1,184 @@
+
+// Knowledge Base (41 lines):
+matcher number "[0-9]*";
+matcher sentence "[a-zA-Z][a-zA-Z ]*";
+matcher word "[a-zA-Z]*";
+matcher name "[A-Z][a-z]*";
+
+matcher move {
+  "moved";
+  "journeyed";
+  "went back";
+  "went";
+  "travelled";
+}
+
+matcher pick {
+  "got";
+  "grabbed";
+  "took";
+  "picked up";
+}
+
+matcher drop {
+  "left";
+  "dropped";
+  "discarded";
+  "put down";
+}
+
+matcher give {
+  "gave";
+  "handed";
+  "passed";
+}
+
+matcher object {
+  "apple";
+  "football";
+  "milk";
+}
+
+matcher place {
+  "bathroom";
+  "bedroom";
+  "office";
+  "hallway";
+  "garden";
+  "kitchen";
+}
+
+// Model (26 lines):
+Traffic = map(
+  '__init__': function() {
+    this.transactions = list()
+  },
+
+  'give': function(name1, item, name2) {
+    this.transactions.push({
+      'giver': name1,
+      'item': item,
+      'receiver': name2
+    })
+  },
+
+  // Return the lastest matching transaction.
+  'search': function(filter) {
+    var result;
+    for (transaction in this.transactions.reverse()) {
+      if (result = filter(transaction)) return result;
+    }
+  }
+)
+
+var traffic = None
+function reset() {
+  traffic = new Traffic()
+}
+
+// Result Validation (9 lines):
+var hit = 0
+var miss = 0
+function compare_results(guess, answer) {
+  if (guess == answer) {
+    hit = hit + 1;
+  } else {
+    miss = miss + 1
+  }
+}
+
+// Parsing Complexity (67 lines):
+matcher read {
+  "(number); (name); (move); to the (place);.";
+
+  "(number); (name); (pick); the (object);(".", " there.")w;";
+
+  "(number); (name); (drop); the (object);(".", " there.")w;";
+
+  "(number); (name)n1; (give); the (object)obj; to (name)n2;." {
+    traffic.give(n1, obj, n2);
+  }
+
+  "(number); What did (name)n1; give to (name)n2;? |(word)answer;|(number);" {
+    guess = traffic.search(function(transac) {
+      if (transac.giver == n1 && transac.receiver == n2) {
+        return transac.item;
+      }
+    })
+
+    compare_results(guess, answer);
+  }
+  
+  "(number); Who received the (object)obj;? |(word)answer;|(number);" {
+    guess = traffic.search(function(transac) {
+      if (transac.item == obj) {
+        return transac.receiver;
+      }
+    })
+
+    compare_results(guess, answer);
+  }
+
+  "(number); Who gave the (object)obj;? |(word)answer;|(number);"{
+    guess = traffic.search(function(transac) {
+      if (transac.item == obj) {
+        return transac.giver;
+      }
+    })
+
+    compare_results(guess, answer);
+  }
+  
+  "(number); Who did (name)n; give the (object)o; to? |(word)answer;|(number);"{
+    guess = traffic.search(function(transac) {
+      if (transac.giver == n && transac.item == o) {
+        return transac.receiver;
+      }
+    })
+
+    compare_results(guess, answer);
+  }
+
+  "(number); Who gave the (object)obj; to (name)n;? |(word)answer;|(number);"{
+    guess = traffic.search(function(transac) {
+      if (transac.receiver == n && transac.item == obj) {
+        return transac.giver;
+      }
+    })
+
+    compare_results(guess, answer);
+  }
+}
+
+// Reading stories and executing the matcher network (30 lines):
+stories = list();
+
+file = open('train5.txt')
+
+// Collect data from all stories:
+for (line in file.readlines()) {
+  if (line[0] == '1' && line[1] == ' ') {
+    story = list()
+    stories.push(story)
+  }
+  story.push(line);
+}
+
+for (story in stories) {
+  reset();
+  for (line in story) {
+    // print(line)
+    if (read.match(line) == False) {
+      print('missed this line: %s' % line)
+    }
+  }
+}
+
+print()
+print('Done!');
+print()
+print('Total stories read: %s' % stories.len());
+print('Total hits: %s' % hit);
+print('Total miss: %s' % miss);
+print()
+

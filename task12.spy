@@ -25,8 +25,8 @@ matcher place {
 where_is = map();
 
 // Result Validation (9 lines):
-hit=0
-miss=0
+var hit = 0
+var miss = 0
 function compare_results(guess, answer) {
   if (guess == answer) {
     hit = hit + 1;
@@ -35,24 +35,21 @@ function compare_results(guess, answer) {
   }
 }
 
-// Parsing Complexity (19 lines):
+// Parsing Complexity (16 lines):
 matcher read {
   "(number); (name)n; (move); to the (place)p;." {
     // print(text)
     where_is[n] = p;
-    finish True
   }
 
   "(number); (name)n1; and (name)n2; (move); to the (place)p;." {
     // Run it recursively:
-    read.exec('1 %s went to the %s.' % (n1, p));
-    read.exec('1 %s went to the %s.' % (n2, p));
-    finish True;
+    read.match('1 %s went to the %s.' % (n1, p));
+    read.match('1 %s went to the %s.' % (n2, p));
   }
 
   "(number); Where is (name)n;? |(word)answer;|(number);" {
     compare_results(where_is[n], answer)
-    finish True
   }
 }
 
@@ -75,8 +72,8 @@ for (line in file.readlines()) {
 for (story in stories) {
   for (line in story) {
     "print(line)"
-    if (read.exec(line).len() == 0) {
-      print('missed one!')
+    if (read.match(line) == False) {
+      print('missed this line: %s!' % line)
     }
   }
 }

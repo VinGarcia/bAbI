@@ -1,5 +1,4 @@
-
-// Knowledge Base (41 lines):
+// Knowledge Base (47 lines):
 matcher number "[0-9]*";
 matcher sentence "[a-zA-Z][a-zA-Z ]*";
 matcher word "[a-zA-Z]*";
@@ -27,6 +26,12 @@ matcher drop {
   "put down";
 }
 
+matcher give {
+  "gave";
+  "handed";
+  "passed";
+}
+
 matcher object {
   "apple";
   "football";
@@ -42,19 +47,7 @@ matcher place {
   "kitchen";
 }
 
-// Model (31 lines):
-Object = map(
-  '__init__': function() {
-    this.places = [ "nowhere" ]
-  },
-
-  'move_to': function(where) {
-    if (this.places[-1] != where) {
-      this.places.push(where)
-    }
-  }
-)
-
+// Model (13 lines):
 Person = map(
   '__init__': function() {
     this.where = "nowhere"
@@ -62,17 +55,11 @@ Person = map(
   }
 )
 
+choices = ["none", "one", "two", "three"]
+
 var people = None
-var objects = None
 function reset() {
   people = map()
-  objects = map()
-  
-  objects_list = [ "apple", "football", "milk" ]
-
-  for (name in objects_list) {
-    objects[name] = new Object()
-  }
 }
 
 // Result Validation (9 lines):
@@ -86,20 +73,14 @@ function compare_results(guess, answer) {
   }
 }
 
-// Parsing Complexity (48 lines):
+// Parsing Complexity (54 lines):
 matcher read {
-  "(number); (name)n; (move)v; to the (place)p;." {
+  "(number); (name)n; (move); to the (place)p;." {
     if (people[n] == None) {
       people[n] = new Person();
     }
 
     people[n].where = p;
-    for (item_name in people[n].items) {
-      // If that person is holding the object:
-      if (people[n].items[item_name] == True) {
-        objects[item_name].move_to(p);
-      }
-    }
   }
 
   "(number); (name)n; (pick)v; the (object)obj;(".", " there.")w;" {
@@ -109,37 +90,45 @@ matcher read {
 
     // Move the object from the place to the person:
     people[n].items[obj] = True;
-    objects[obj].move_to(people[n].where)
   }
 
-  "(number); (name)n; (drop)v; the (object)obj;(".", " there.")w;" {
+  "(number); (name)n; (drop)v; the (object)o;(".", " there.")w;" {
     if (people[n] == None) {
       people[n] = new Person();
     }
 
     // Move the object from the person to the place:
-    people[n].items[obj] = False;
-    objects[obj].move_to(people[n].where)
+    people[n].items.pop(o);
   }
 
-  "(number); Where was the (object)o; before the (place)p;? |(word)A;|[0-9 ]*" {
-    places = objects[o].places
-
-    // Walk from back to front:
-    for (idx in range(places.len()-1, -1, -1)) {
-      if (places[idx] == p) {
-        guess = places[idx-1]
-        compare_results(guess, A);
-        break;
-      }
+  "(number); (name)n1; (give); the (object)obj; to (name)n2;." {
+    if (people[n1] == None) {
+      people[n1] = new Person();
     }
+
+    if (people[n2] == None) {
+      people[n2] = new Person();
+    }
+
+    people[n1].items.pop(obj);
+    people[n2].items[obj] = True;
+  }
+
+  "(number); How many objects is (name)n; carrying? |(word)answer;|[0-9 ]*" {
+    if (people[n] == None) {
+      people[n] = new Person();
+    }
+
+    guess = choices[people[n].items.len()]
+    compare_results(guess, answer);
   }
 }
 
-// Reading stories and executing the matcher network (30 lines):
+// Reading stories and executing the matcher network (32 lines):
+nlines = 0
 stories = list();
 
-file = open('train3.txt')
+file = open('train7.txt')
 
 // Collect data from all stories:
 for (line in file.readlines()) {
@@ -148,6 +137,7 @@ for (line in file.readlines()) {
     stories.push(story)
   }
   story.push(line);
+  nlines = nlines + 1
 }
 
 for (story in stories) {

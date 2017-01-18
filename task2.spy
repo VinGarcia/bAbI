@@ -42,17 +42,22 @@ matcher place {
   "kitchen";
 }
 
-// Model (23 lines):
-Person = map();
-function init() { this.where = "nowhere"; this.items = map(); }
-Person.__init__ = init;
+// Model (28 lines):
+Person = map(
+  '__init__': function() {
+    this.where = "nowhere"
+    this.items = map()
+  }
+)
 
-Place = map();
-function init() { this.items = map(); }
-Place.__init__ = init;
+Place = map(
+  '__init__': function() {
+    this.items = map()
+  }
+)
 
-people = None
-places = None
+var people = None
+var places = None
 function reset() {
   people = map()
   places = map()
@@ -67,16 +72,14 @@ function reset() {
   }
 }
 
-// Result Validation (11 lines):
-hit=0
-miss=0
+// Result Validation (9 lines):
+var hit = 0
+var miss = 0
 function compare_results(guess, answer) {
   if (guess == answer) {
     hit = hit + 1;
-    return True
   } else {
     miss = miss + 1
-    return False
   }
 }
 
@@ -88,7 +91,6 @@ matcher read {
     }
 
     people[n].where = p;
-    finish True
   }
 
   "(number); (name)n; (pick)v; the (object)obj;(".", " there.")w;" {
@@ -99,7 +101,6 @@ matcher read {
     // Move the object from the place to the person:
     people[n].items[obj] = True;
     places[people[n].where].items[obj] = False;
-    finish True
   }
 
   "(number); (name)n; (drop)v; the (object)o;(".", " there.")w;" {
@@ -110,7 +111,6 @@ matcher read {
     // Move the object from the person to the place:
     people[n].items[o] = False;
     places[people[n].where].items[o] = True;
-    finish True
   }
 
   "(number); Where is the (object)o;? |(word)answer;|[0-9 ]*" {
@@ -119,7 +119,7 @@ matcher read {
       if (people[name].items[o] == True) {
         guess = people[name].where
         compare_results(guess, answer)
-        finish True;
+        return;
       }
     }
 
@@ -127,12 +127,11 @@ matcher read {
     for (name in places) {
       if (places[name].items[o] == True) {
         compare_results(name, answer)
-        finish True;
+        return;
       }
     }
 
     print('--> %s was not found!' % o);
-    finish True
   }
 }
 
@@ -159,7 +158,7 @@ for (story in stories) {
   reset();
   for (line in story) {
     // print(line)
-    if (read.exec(line).len() == 0) {
+    if (read.match(line) == False) {
       print('missed this line: %s' % line)
     }
   }

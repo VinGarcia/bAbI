@@ -5,15 +5,15 @@ matcher word "[a-zA-Z]*";
 matcher name "[A-Z][a-z]*";
 
 matcher to_single {
-  "mice" finish 'mouse';
-  "wolves" finish 'wolf';
-  "cats" finish 'cat';
-  "sheep" finish 'sheep';
+  "mice" return 'mouse';
+  "wolves" return 'wolf';
+  "cats" return 'cat';
+  "sheep" return 'sheep';
 }
 
 // Model (7 lines):
-species = None
-animals = None
+var species = None
+var animals = None
 function reset() {
   // Recent memory:
   species = map()
@@ -21,8 +21,8 @@ function reset() {
 }
 
 // Result Validation (9 lines):
-hit=0
-miss=0
+var hit = 0
+var miss = 0
 function compare_results(guess, answer) {
   if (guess == answer) {
     hit = hit + 1
@@ -31,27 +31,24 @@ function compare_results(guess, answer) {
   }
 }
 
-// Parsing Complexity (22 lines):
+// Parsing Complexity (19 lines):
 matcher read {
   "(number); (word)n1; are afraid of (word)n2;." {
-    n1 = to_single.exec(n1.lower())[0];
+    n1 = to_single.match_one(n1.lower());
     if (species[n1] == None) {
       species[n1] = map()
     }
   
-    species[n1].afraid = to_single.exec(n2)[0];
-    finish True;
+    species[n1].afraid = to_single.match_one(n2);
   }
   
   "(number); (name)n; is a (word)w;." {
     animals[n.lower()] = new species[w]()
-    finish True;
   }
   
   "(number); What is (word)n; afraid of?|(word)answer;|[0-9 ]*" {
     guess = animals[n.lower()].afraid;
     compare_results(guess, answer);
-    finish True;
   }
 }
 
@@ -76,7 +73,7 @@ for (story in stories) {
   reset();
   for (line in story) {
     // print(line)
-    if (read.exec(line).len() == 0) {
+    if (read.match(line) == False) {
       print('missed this line: %s' % line)
     }
   }

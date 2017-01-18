@@ -1,4 +1,3 @@
-
 // Knowledge Base (20 lines):
 matcher number "[0-9]*";
 matcher word "[a-zA-Z]*";
@@ -19,10 +18,35 @@ matcher place {
   "hallway";
   "garden";
   "kitchen";
+  "cinema";
+  "park";
+  "school";
 }
 
-// Model (1 line):
-var where_is = map();
+// Model (19 line):
+var where_is = map()
+
+Person = map(
+  '__init__': function(place1, place2) {
+    if (place2) {
+      this[place1] = 'maybe';
+      this[place2] = 'maybe';
+    } else {
+      this[place1] = 'yes';
+    }
+  },
+
+  // Used as default values for the class instances:
+  'bathroom': 'no',
+  'bedroom': 'no',
+  'office': 'no',
+  'hallway': 'no',
+  'garden': 'no',
+  'kitchen': 'no',
+  'cinema': 'no',
+  'park': 'no',
+  'school': 'no'
+)
 
 // Result Validation (9 lines):
 var hit = 0
@@ -35,14 +59,22 @@ function compare_results(guess, answer) {
   }
 }
 
-// Parsing Complexity (10 lines):
+// Parsing Complexity (18 lines):
 matcher read {
   "(number); (name)name; (verb); to the (place)place;." {
-    where_is[name] = place;
+    where_is[name] = new Person(place, None);
   }
 
-  "(number); Where is (name)name;? |(word)answer;|(number);" {
-    guess = where_is[name]
+  "(number); (name)name; is in the (place)place;." {
+    where_is[name] = new Person(place, None);
+  }
+
+  "(number); (name)name; is either in the (place)p1; or the (place)p2;." {
+    where_is[name] = new Person(p1, p2);
+  }
+
+  "(number); Is (name)name; in the (place)place;? |(word)answer;|(number);" {
+    guess = where_is[name][place]
     compare_results(guess, answer);
   }
 }
@@ -50,7 +82,7 @@ matcher read {
 // Reading stories and executing the matcher network (28 lines):
 stories = list();
 
-file = open('train1.txt')
+file = open('train10.txt')
 
 // Collect data from all stories:
 for (line in file.readlines()) {
@@ -64,7 +96,7 @@ for (line in file.readlines()) {
 for (story in stories) {
   for (line in story) {
     if (read.match(line) == False) {
-      print('missed this line: %s!' % line)
+      print('Missed this line: %s!' % line)
     }
   }
 }

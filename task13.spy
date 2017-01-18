@@ -33,8 +33,8 @@ where_is = map();
 memory = list();
 
 // Result Validation (9 lines):
-hit=0
-miss=0
+var hit = 0
+var miss = 0
 function compare_results(guess, answer) {
   if (guess == answer) {
     hit = hit + 1;
@@ -47,29 +47,25 @@ function compare_results(guess, answer) {
 matcher read {
   "(number); (name)n; (move); to the (place)p;." {
     where_is[n] = p;
-    finish True
   }
 
   "(number); (name)n1; and (name)n2; (move); to the (place)p;." {
     // Run it recursively:
-    read.exec('1 %s went to the %s.' % (n1, p));
-    read.exec('1 %s went to the %s.' % (n2, p));
+    read.match('1 %s went to the %s.' % (n1, p));
+    read.match('1 %s went to the %s.' % (n2, p));
 
     memory.push(list(n1,n2));
-    finish True;
   }
 
   "(number); (after); they (move); to the (place)p;." {
     n1 = memory[-1][0]
     n2 = memory[-1][1]
 
-    read.exec('1 %s and %s went to the %s.' % (n1, n2, p));
-    finish True;
+    read.match('1 %s and %s went to the %s.' % (n1, n2, p));
   }
 
   "(number); Where is (name)n;? |(word)answer;|[0-9 ]*" {
     compare_results(where_is[n], answer)
-    finish True
   }
 }
 
@@ -92,8 +88,8 @@ for (line in file.readlines()) {
 for (story in stories) {
   for (line in story) {
     // print(line)
-    if (read.exec(line).len() == 0) {
-      print('missed one!')
+    if (read.match(line) == False) {
+      print('missed this line: %s!' % line)
     }
   }
 }

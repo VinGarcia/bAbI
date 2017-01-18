@@ -18,16 +18,20 @@ matcher direction {
 }
 
 // Model (27 lines):
-oppose = map()
-oppose.north = 'south';
-oppose.south = 'north';
-oppose.east = 'west';
-oppose.west = 'east';
+oppose = {
+  'north': 'south',
+  'south': 'north',
+  'east': 'west',
+  'west': 'east'
+}
 
 // Place class:
-Place = map();
-for(name in list('north','south','east','west'))
-  Place[name] = None
+Place = map(
+  'north': None,
+  'south': None,
+  'east': None,
+  'west': None
+)
 
 function add_edge(p1, direction, p2) {
   places[p1][direction] = p2;
@@ -35,10 +39,11 @@ function add_edge(p1, direction, p2) {
 }
 
 // Place list:
-places = None
-places_list = list(
+var places = None
+var places_list = [
   "bathroom", "bedroom", "office",
-  "hallway", "garden", "kitchen", "nowhere")
+  "hallway", "garden", "kitchen", "nowhere"
+]
 function reset() {
   places = map()
   for (name in places_list) {
@@ -47,8 +52,8 @@ function reset() {
 }
 
 // Result Validation (9 lines):
-hit=0
-miss=0
+var hit = 0
+var miss = 0
 function compare_results(guess, answer) {
   if (guess == answer) {
     hit = hit + 1;
@@ -57,23 +62,20 @@ function compare_results(guess, answer) {
   }
 }
 
-// Parsing Complexity (18 lines):
+// Parsing Complexity (15 lines):
 matcher read {
   "(number); The (place)p1; is (direction)d; of the (place)p2;." {
     add_edge(p2, d, p1);
-    finish True
   }
 
   "(number); What is the (place)p; (direction)d; of?|(word)answer;|[0-9 ]*" {
     guess = places[p][oppose[d]]
     compare_results(guess, answer);
-    finish True;
   }
 
   "(number); What is (direction)d; of the (place)p;?|(word)answer;|[0-9 ]*" {
     guess = places[p][d]
     compare_results(guess, answer);
-    finish True;
   }
 }
 
@@ -95,7 +97,7 @@ for (story in stories) {
   reset();
   for (line in story) {
     // print(line)
-    if (read.exec(line).len() == 0) {
+    if (read.match(line) == False) {
       print('missed this line: %s' % line)
     }
   }
