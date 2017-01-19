@@ -21,9 +21,9 @@ matcher place {
   "kitchen";
 }
 
-matcher pronoun { "he"; "she" };
-matcher she { "Mary" return 1; "Sandra" return 1; }
-matcher he { "Daniel" return 1; "John" return 1; }
+matcher pronoun { "he"; "she"; }
+matcher she { "Mary"; "Sandra"; }
+matcher he { "Daniel"; "John"; }
 pronoun["he"] = he;
 pronoun["she"] = she;
 
@@ -64,7 +64,6 @@ matcher read {
   }
 
   "(number); (after); (pronoun)pn; (move); to the (place)p;." {
-
     // Find the name of the last `he` or `she`:
     for(name in memory.reverse()) {
       // If the pronoun fits the name:
