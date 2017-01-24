@@ -1,0 +1,103 @@
+
+// Knowledge Base (10 lines):
+matcher number "[0-9]*";
+matcher word "[a-zA-Z]*";
+matcher name "[A-Z][a-z]*";
+
+matcher color {
+  "yellow";
+  "gray";
+  "white";
+  "green";
+}
+
+matcher animal {
+  "lion";
+  "swan";
+  "frog";
+  "rhino";
+}
+
+// Model (7 lines):
+var Species = map(
+  'color': None,
+
+  '__init__': function(parent) {
+    this.parent = parent;
+  }
+)
+
+var species = None
+var animals = None
+function reset() {
+  // Recent memory:
+  species = map()
+  animals = map()
+}
+
+// Result Validation (9 lines):
+var hit = 0
+var miss = 0
+function compare_results(guess, answer) {
+  if (guess == answer) {
+    hit = hit + 1
+  } else {
+    miss = miss + 1
+  }
+}
+
+// Parsing Complexity (19 lines):
+matcher read {
+  "(number); (name)n; is a (animal)a;." {
+    if (species[a] == None) {
+      species[a] = new Species();
+    }
+
+    animals[n] = new species[a](species[a])
+  }
+
+  "(number); (name)n; is (color)c;." {
+     animals[n].parent.color = c;
+  }
+  
+  "(number); What color is (name)n;?|(word)answer;|[0-9 ]*" {
+    guess = animals[n].color;
+    compare_results(guess, answer);
+  }
+}
+
+// Reading stories and executing the matcher network (31 lines):
+nlines = 0
+stories = list();
+
+file = open('train16.txt')
+
+// Collect data from all stories:
+for (line in file.readlines()) {
+  if (line[0] == '1' && line[1] == ' ') {
+    story = list()
+    stories.push(story)
+  }
+  story.push(line);
+  nlines = nlines + 1
+}
+
+// Parse and answer each story:
+for (story in stories) {
+  reset();
+  for (line in story) {
+    // print(line)
+    if (read.match(line) == False) {
+      print('missed this line: %s' % line)
+    }
+  }
+}
+
+print()
+print('Done!');
+print()
+print('Total stories read: %s' % stories.len());
+print('Total hits: %s' % hit);
+print('Total miss: %s' % miss);
+print()
+

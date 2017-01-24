@@ -1,0 +1,135 @@
+
+// Knowledge Base (20 lines):
+matcher number "[0-9]*";
+matcher word "[a-zA-Z]*";
+matcher name "[A-Z][a-z]*";
+
+matcher move {
+  "moved";
+  "journeyed";
+  "went back";
+  "went";
+  "travelled";
+}
+
+matcher place {
+  "bathroom";
+  "bedroom";
+  "office";
+  "hallway";
+  "garden";
+  "kitchen";
+  "cinema";
+  "park";
+  "school";
+}
+
+matcher when {
+  "[Yy]esterday" return -4;
+  "[Tt]his morning" return -3;
+  "[Tt]his afternoon" return -2;
+  "[Tt]his evening" return -1;
+}
+
+// Model (19 line):
+var people = map()
+Person = map(
+  '__init__': function(place1, place2) {
+    this.places = [None, None, None, None]
+  }
+)
+
+function reset() {
+  people = map();
+}
+
+// Result Validation (9 lines):
+var hit = 0
+var miss = 0
+function compare_results(guess, answer) {
+  if (guess == answer) {
+    hit = hit + 1;
+  } else {
+    miss = miss + 1
+  }
+}
+
+
+function parse_moment(sentence, moment) {
+  // Extract information from the sentence:
+  result = going_to.match_one(sentence);
+  person = result[0]
+  place = result[1]
+
+  // Extract information from the moment:
+  offset = when.match_one(m);
+
+  // Write it down:
+  person.places[offset] = place;
+}
+
+matcher going_to {
+  "(name)name; (move); to the (place)place;" {
+    if (people[name] == None) {
+      people[name] = new Person();
+    }
+    return [people[name], place]
+  }
+}
+
+// Parsing Complexity (12 lines):
+matcher read {
+  "(number); (going_to)sentence; (when)m;." {
+    parse_moment(sentence, m);
+  }
+
+  "(number); (when)m; (going_to)sentence;." {
+    parse_moment(sentence, m);
+  }
+
+  "(number); Where was (name)n; before the (place)p;? |(word)answer;|[0-9 ]*" {
+    last_place = None
+    for (current_place in people[n].places) {
+      if (last_place == None) {
+        // Make sure there is a last place:
+        last_place = current_place
+      } else {
+        if (current_place == p) {
+          return compare_results(last_place, answer);
+        } else {
+          last_place = current_place
+        }
+      }
+    }
+  }
+}
+
+// Reading stories and executing the matcher network (28 lines):
+stories = list();
+
+file = open('train14.txt')
+
+// Collect data from all stories:
+for (line in file.readlines()) {
+  if (line[0] == '1' && line[1] == ' ') {
+    story = list()
+    stories.push(story)
+  }
+  story.push(line);
+}
+
+for (story in stories) {
+  for (line in story) {
+    if (read.match(line) == False) {
+      print('Missed this line: %s!' % line)
+    }
+  }
+}
+
+print()
+print('Done!');
+print()
+print('Total stories read: %s' % stories.len());
+print('Total hits: %s' % hit);
+print('Total miss: %s' % miss);
+print()
