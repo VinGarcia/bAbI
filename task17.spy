@@ -1,10 +1,10 @@
 
-// Knowledge Base (20 lines):
+// Knowledge Base (45 lines):
 matcher number "[0-9]*";
 matcher word "[a-zA-Z]*";
 matcher name "[A-Z][a-z]*";
 
-// Any form can be preceded by a color as defined below:
+// Any form can be, optionally, preceded by a color as defined below:
 matcher form {
   "(color); (form);";
   "rectangle";
@@ -46,14 +46,10 @@ matcher position {
   };
 }
 
-// Model (1 line):
+// Model (54 lines):
 Obj = map(
   'x': 0,
   'y': 0,
-
-  '__init__': function(x, y) {
-    this.neighbors = {}
-  },
 
   'set': function(x, y) {
     this.x = x;
@@ -109,18 +105,15 @@ function reset() {
 // Result Validation (9 lines):
 var hit = 0
 var miss = 0
-var err
 function compare_results(guess, answer) {
   if (guess == answer) {
-    err = False
     hit = hit + 1;
   } else {
-    err = True
     miss = miss + 1
   }
 }
 
-// Parsing Complexity (10 lines):
+// Parsing Complexity (38 lines):
 matcher read {
   "(number); The (form)f1; is (position)p; the (form)f2;." {
     var pos = position.match_one(p);
@@ -135,8 +128,6 @@ matcher read {
     f2 = objects[f2]
 
     f1.set( new Ref(f2, 'x', pos.offset.x), new Ref(f2, 'y', pos.offset.y) )
-    // objects[f1].neighbors[pos.oppose] = f2 {'x': , 'y': }
-    // objects[f2].neighbors[pos.pos] = f1
   }
 
   "(number); Is the (form)f1; (position)p; the (form)f2;?|(word)y_no;|[0-9 ]*" {
@@ -181,11 +172,6 @@ for (story in stories) {
   for (line in story) {
     if (read.match(line) == False) {
       print('missed this line: %s!' % line)
-    }
-
-    if (err) {
-      // print('err on line %s' % line);
-      err = False
     }
   }
 }

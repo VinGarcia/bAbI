@@ -83,7 +83,7 @@ function compare_results(guess, answer) {
   }
 }
 
-// Parsing Complexity (54 lines):
+// Parsing Complexity (53 lines):
 matcher read {
   "(number); (name)n; (move); to the (place)p;." {
     if (people[n] == None) {

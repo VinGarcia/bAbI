@@ -55,7 +55,7 @@ function compare_results(guess, answer) {
   }
 }
 
-// Parsing Complexity 26 lines:
+// Parsing Complexity (25 lines):
 matcher read {
   "(number); (name)n; (move); to the (place)p;." {
     // Remember this person:

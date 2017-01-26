@@ -1,5 +1,5 @@
 
-// Knowledge Base (20 lines):
+// Knowledge Base (30 lines):
 matcher number "[0-9]*";
 matcher word "[a-zA-Z]*";
 matcher name "[A-Z][a-z]*";
@@ -31,7 +31,7 @@ matcher when {
   "[Tt]his evening" return -1;
 }
 
-// Model (19 line):
+// Model (10 line):
 var people = map()
 Person = map(
   '__init__': function(place1, place2) {
@@ -77,7 +77,7 @@ matcher going_to {
   }
 }
 
-// Parsing Complexity (12 lines):
+// Parsing Complexity (25 lines):
 matcher read {
   "(number); (going_to)sentence; (when)m;." {
     parse_moment(sentence, m);

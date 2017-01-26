@@ -1,6 +1,5 @@
-// Knowledge Base (47 lines):
+// Knowledge Base (46 lines):
 matcher number "[0-9]*";
-matcher sentence "[a-zA-Z][a-zA-Z ]*";
 matcher word "[a-zA-Z]*";
 matcher name "[A-Z][a-z]*";
 
@@ -73,7 +72,7 @@ function compare_results(guess, answer) {
   }
 }
 
-// Parsing Complexity (54 lines):
+// Parsing Complexity (49 lines):
 matcher read {
   "(number); (name)n; (move); to the (place)p;." {
     if (people[n] == None) {

@@ -1,5 +1,5 @@
 
-// Knowledge Base (10 lines):
+// Knowledge Base (17 lines):
 matcher number "[0-9]*";
 matcher word "[a-zA-Z]*";
 matcher name "[A-Z][a-z]*";
@@ -18,7 +18,7 @@ matcher animal {
   "rhino";
 }
 
-// Model (7 lines):
+// Model (15 lines):
 var Species = map(
   'color': None,
 
@@ -46,7 +46,7 @@ function compare_results(guess, answer) {
   }
 }
 
-// Parsing Complexity (19 lines):
+// Parsing Complexity (18 lines):
 matcher read {
   "(number); (name)n; is a (animal)a;." {
     if (species[a] == None) {

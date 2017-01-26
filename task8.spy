@@ -1,7 +1,6 @@
 
-// Knowledge Base (47 lines):
+// Knowledge Base (40 lines):
 matcher number "[0-9]*";
-matcher sentence "[a-zA-Z][a-zA-Z ]*";
 matcher word "[a-zA-Z]*";
 matcher name "[A-Z][a-z]*";
 
@@ -27,12 +26,6 @@ matcher drop {
   "put down";
 }
 
-matcher give {
-  "gave";
-  "handed";
-  "passed";
-}
-
 matcher object {
   "apple";
   "football";
@@ -48,7 +41,7 @@ matcher place {
   "kitchen";
 }
 
-// Model (13 lines):
+// Model (29 lines):
 Person = map(
   '__init__': function() {
     this.where = "nowhere"
@@ -94,7 +87,7 @@ function compare_results(guess, answer) {
   }
 }
 
-// Parsing Complexity (54 lines):
+// Parsing Complexity (36 lines):
 matcher read {
   "(number); (name)n; (move); to the (place)p;." {
     if (people[n] == None) {
@@ -120,19 +113,6 @@ matcher read {
 
     // Move the object from the person to the place:
     people[n].items.pop(o);
-  }
-
-  "(number); (name)n1; (give); the (object)obj; to (name)n2;." {
-    if (people[n1] == None) {
-      people[n1] = new Person();
-    }
-
-    if (people[n2] == None) {
-      people[n2] = new Person();
-    }
-
-    people[n1].items.pop(obj);
-    people[n2].items[obj] = True;
   }
 
   "(number); What is (name)n; carrying? |("[a-z,]*")answer;|[0-9 ]*" {

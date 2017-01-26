@@ -1,5 +1,5 @@
 
-// Knowledge Base (16 lines):
+// Knowledge Base (19 lines):
 matcher number "[0-9]*";
 matcher word "[a-zA-Z]*";
 matcher name "[A-Z][a-z]*";
@@ -14,18 +14,13 @@ matcher place {
 }
 
 matcher direction {
-  "north"; "south"; "east"; "west";
+  "north" return {'text': 'north', 'opposed': 'south'};
+  "south" return {'text': 'south', 'opposed': 'north'};
+  "east" return {'text': 'east', 'opposed': 'west'};
+  "west" return {'text': 'west', 'opposed': 'east'};
 }
 
-// Model (27 lines):
-oppose = {
-  'north': 'south',
-  'south': 'north',
-  'east': 'west',
-  'west': 'east'
-}
-
-// Place class:
+// Model (24 lines):
 Place = map(
   'north': None,
   'south': None,
@@ -34,8 +29,8 @@ Place = map(
 )
 
 function add_edge(p1, direction, p2) {
-  places[p1][direction] = p2;
-  places[p2][oppose[direction]] = p1;
+  places[p1][direction.text] = p2;
+  places[p2][direction.opposed] = p1;
 }
 
 // Place list:
@@ -62,19 +57,22 @@ function compare_results(guess, answer) {
   }
 }
 
-// Parsing Complexity (15 lines):
+// Parsing Complexity (18 lines):
 matcher read {
   "(number); The (place)p1; is (direction)d; of the (place)p2;." {
+    var d = direction.match_one(d)
     add_edge(p2, d, p1);
   }
 
   "(number); What is the (place)p; (direction)d; of?|(word)answer;|[0-9 ]*" {
-    guess = places[p][oppose[d]]
+    var d = direction.match_one(d)
+    guess = places[p][d.opposed]
     compare_results(guess, answer);
   }
 
   "(number); What is (direction)d; of the (place)p;?|(word)answer;|[0-9 ]*" {
-    guess = places[p][d]
+    var d = direction.match_one(d)
+    guess = places[p][d.text]
     compare_results(guess, answer);
   }
 }

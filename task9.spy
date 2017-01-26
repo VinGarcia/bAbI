@@ -35,7 +35,7 @@ function compare_results(guess, answer) {
   }
 }
 
-// Parsing Complexity (12 lines):
+// Parsing Complexity (22 lines):
 matcher read {
   "(number); (name)name; (verb); to the (place)place;." {
     where_is[name] = place;

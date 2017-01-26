@@ -1,4 +1,4 @@
-// Knowledge Base (20 lines):
+// Knowledge Base (23 lines):
 matcher number "[0-9]*";
 matcher word "[a-zA-Z]*";
 matcher name "[A-Z][a-z]*";
@@ -23,7 +23,7 @@ matcher place {
   "school";
 }
 
-// Model (19 line):
+// Model (23 line):
 var where_is = map()
 
 Person = map(
