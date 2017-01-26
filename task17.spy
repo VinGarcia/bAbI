@@ -1,0 +1,200 @@
+
+// Knowledge Base (20 lines):
+matcher number "[0-9]*";
+matcher word "[a-zA-Z]*";
+matcher name "[A-Z][a-z]*";
+
+// Any form can be preceded by a color as defined below:
+matcher form {
+  "(color); (form);";
+  "rectangle";
+  "square";
+  "triangle";
+  "sphere";
+}
+
+matcher color {
+  "pink";
+  "red";
+  "yellow";
+  "blue";
+}
+
+matcher position {
+  "below" return {
+    'pos': 'below',
+    'oppose': 'above',
+    'offset': {'x': 0, 'y': -1}
+  };
+
+  "above" return {
+    'pos': 'above',
+    'oppose': 'below',
+    'offset': {'x': 0, 'y': 1}
+  };
+
+  "to the right of" return {
+    'pos': 'right',
+    'oppose': 'left',
+    'offset': {'x': 1, 'y': 0}
+  };
+
+  "to the left of" return {
+    'pos': 'left',
+    'oppose': 'right',
+    'offset': {'x': -1, 'y': 0}
+  };
+}
+
+// Model (1 line):
+Obj = map(
+  'x': 0,
+  'y': 0,
+
+  '__init__': function(x, y) {
+    this.neighbors = {}
+  },
+
+  'set': function(x, y) {
+    this.x = x;
+    this.y = y;
+  }
+)
+
+Ref = map(
+  '__type__': 'ref',
+
+  '__init__': function(source, key, offset) {
+    this.source = source;
+    this.key = key;
+
+    if (offset == None) {
+      this.offset = 0
+    } else {
+      this.offset = int(offset)
+    }
+  },
+
+  'value': function() {
+    var value = this.source[this.key];
+
+    if (this.__lock__) {
+      print('Cycle detected!')
+      return 0;
+    }
+
+    this.__lock__ = True
+    var _value = Ref.getValue(value) + this.offset;
+    this.__lock__ = False
+
+    return _value
+  },
+
+  'getValue': function(item) {
+    if (type(item) == 'map') {
+      if (item.__type__ == 'ref') {
+        return item.value()
+      }
+    }
+
+    return item
+  }
+);
+
+var objects = {}
+function reset() {
+  objects = {}
+}
+
+// Result Validation (9 lines):
+var hit = 0
+var miss = 0
+var err
+function compare_results(guess, answer) {
+  if (guess == answer) {
+    err = False
+    hit = hit + 1;
+  } else {
+    err = True
+    miss = miss + 1
+  }
+}
+
+// Parsing Complexity (10 lines):
+matcher read {
+  "(number); The (form)f1; is (position)p; the (form)f2;." {
+    var pos = position.match_one(p);
+    if (objects[f1] == None) {
+      objects[f1] = new Obj();
+    }
+    f1 = objects[f1]
+
+    if (objects[f2] == None) {
+      objects[f2] = new Obj();
+    }
+    f2 = objects[f2]
+
+    f1.set( new Ref(f2, 'x', pos.offset.x), new Ref(f2, 'y', pos.offset.y) )
+    // objects[f1].neighbors[pos.oppose] = f2 {'x': , 'y': }
+    // objects[f2].neighbors[pos.pos] = f1
+  }
+
+  "(number); Is the (form)f1; (position)p; the (form)f2;?|(word)y_no;|[0-9 ]*" {
+    var guess;
+    var f1 = objects[f1]
+    var f2 = objects[f2]
+
+    if (p == 'above') {
+      guess = Ref.getValue(f1.y) > Ref.getValue(f2.y)
+    } else if (p == 'below') {
+      guess = Ref.getValue(f1.y) < Ref.getValue(f2.y)
+    } else if (p == 'to the left of') {
+      guess = Ref.getValue(f1.x) < Ref.getValue(f2.x)
+    } else if (p == 'to the right of') {
+      guess = Ref.getValue(f1.x) > Ref.getValue(f2.x)
+    }
+
+    if (guess) {
+      compare_results('yes', y_no)
+    } else {
+      compare_results('no', y_no)
+    }
+  }
+}
+
+// Reading stories and executing the matcher network (28 lines):
+stories = list();
+
+file = open('train17.txt')
+
+// Collect data from all stories:
+for (line in file.readlines()) {
+  if (line[0] == '1' && line[1] == ' ') {
+    story = list()
+    stories.push(story)
+  }
+  story.push(line);
+}
+
+for (story in stories) {
+  reset()
+  for (line in story) {
+    if (read.match(line) == False) {
+      print('missed this line: %s!' % line)
+    }
+
+    if (err) {
+      // print('err on line %s' % line);
+      err = False
+    }
+  }
+}
+
+print()
+print('Done!');
+print()
+print('Total stories read: %s' % stories.len());
+print('Total hits: %s' % hit);
+print('Total miss: %s' % miss);
+print()
+
