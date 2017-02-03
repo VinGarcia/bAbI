@@ -1,4 +1,3 @@
-
 // Knowledge Base (45 lines):
 matcher number "[0-9]*";
 matcher word "[a-zA-Z]*";
@@ -47,7 +46,7 @@ matcher position {
 }
 
 // Model (54 lines):
-Obj = map(
+var Obj = map(
   'x': 0,
   'y': 0,
 
@@ -57,7 +56,7 @@ Obj = map(
   }
 )
 
-Ref = map(
+var Ref = map(
   '__type__': 'ref',
 
   '__init__': function(source, key, offset) {

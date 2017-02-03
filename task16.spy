@@ -1,4 +1,3 @@
-
 // Knowledge Base (17 lines):
 matcher number "[0-9]*";
 matcher word "[a-zA-Z]*";

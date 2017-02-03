@@ -1,14 +1,13 @@
-
 // Knowledge Base (10 lines):
 matcher number "[0-9]*";
 matcher word "[a-zA-Z]*";
 matcher name "[A-Z][a-z]*";
 
-matcher to_single {
-  "mice" return 'mouse';
-  "wolves" return 'wolf';
-  "cats" return 'cat';
-  "sheep" return 'sheep';
+matcher animal {
+  "[Mm]ice" return 'mouse';
+  "[Ww]olves" return 'wolf';
+  "[Cc]ats" return 'cat';
+  "[Ss]heep" return 'sheep';
 }
 
 // Model (7 lines):
@@ -33,13 +32,13 @@ function compare_results(guess, answer) {
 
 // Parsing Complexity (19 lines):
 matcher read {
-  "(number); (word)n1; are afraid of (word)n2;." {
-    n1 = to_single.match_one(n1.lower());
+  "(number); (word)n1; are afraid of (animal)n2;." {
+    n1 = animal.match_one(n1);
     if (species[n1] == None) {
       species[n1] = map()
     }
   
-    species[n1].afraid = to_single.match_one(n2);
+    species[n1].afraid = animal.match_one(n2);
   }
   
   "(number); (name)n; is a (word)w;." {
