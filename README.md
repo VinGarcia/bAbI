@@ -1,5 +1,5 @@
 
-# Setup
+# How to Setup
 
 To setup this project clone it recursively:
 
@@ -37,7 +37,7 @@ make all
 
 # Obtaining the train files
 
-Please note that the train#.txt files are sightly altered:
+Please note that the train#.txt files are slightly altered:
 
 - All the tabs were replaced by the character '|'
 
